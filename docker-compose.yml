@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  sshd:
+    build:
+      context: .
+    image: fluidog/sshd-arch
+    restart: unless-stopped
+    network_mode: host
+    privileged : true
+    tmpfs:
+      - /run
+      - /tmp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /lib/modules:/lib/modules
+      - /root/workspace:/root/workspace
+
+  nfs-server:
+    image: gists/nfs-server
+    restart: unless-stopped
+    ports:
+      - "2049:2049"
+    environment:
+      NFS_OPTION: "fsid=root,rw,sync,insecure,all_squash,anonuid=0,anongid=0,no_subtree_check"
+    privileged: true
+    volumes:
+      - /root/workspace/:/nfs-share
+  
